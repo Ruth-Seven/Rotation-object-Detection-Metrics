@@ -163,12 +163,14 @@ def getBoundingBoxes(directory,
                 y = float(splitLine[2])
                 w = float(splitLine[3])
                 h = float(splitLine[4])
+                other = float(splitLine[5])
                 bb = BoundingBox(nameOfImage,
                                  idClass,
                                  x,
                                  y,
                                  w,
                                  h,
+                                 other,
                                  coordType,
                                  imgSize,
                                  BBType.GroundTruth,
@@ -181,12 +183,14 @@ def getBoundingBoxes(directory,
                 y = float(splitLine[3])
                 w = float(splitLine[4])
                 h = float(splitLine[5])
+                other = float(splitLine[6])
                 bb = BoundingBox(nameOfImage,
                                  idClass,
                                  x,
                                  y,
                                  w,
                                  h,
+                                other,
                                  coordType,
                                  imgSize,
                                  BBType.Detected,
@@ -326,17 +330,17 @@ if len(errors) != 0:
     sys.exit()
 
 # Check if path to save results already exists and is not empty
-if os.path.isdir(savePath) and os.listdir(savePath):
-    key_pressed = ''
-    while key_pressed.upper() not in ['Y', 'N']:
-        print(f'Folder {savePath} already exists and may contain important results.\n')
-        print(f'Enter \'Y\' to continue. WARNING: THIS WILL REMOVE ALL THE CONTENTS OF THE FOLDER!')
-        print(f'Or enter \'N\' to abort and choose another folder to save the results.')
-        key_pressed = input('')
+# if os.path.isdir(savePath) and os.listdir(savePath):
+#     key_pressed = ''
+#     while key_pressed.upper() not in ['Y', 'N']:
+#         print(f'Folder {savePath} already exists and may contain important results.\n')
+#         print(f'Enter \'Y\' to continue. WARNING: THIS WILL REMOVE ALL THE CONTENTS OF THE FOLDER!')
+#         print(f'Or enter \'N\' to abort and choose another folder to save the results.')
+#         key_pressed = input('')
 
-    if key_pressed.upper() == 'N':
-        print('Process canceled')
-        sys.exit()
+#     if key_pressed.upper() == 'N':
+#         print('Process canceled')
+#         sys.exit()
 
 # Clear folder and save results
 shutil.rmtree(savePath, ignore_errors=True)

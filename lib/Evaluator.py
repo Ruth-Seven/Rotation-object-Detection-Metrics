@@ -399,7 +399,7 @@ class Evaluator:
     def iou_rotate_calculate(boxes1, boxes2):
 
         def xyxy2center(box):
-            new_box = copy.deepcopy(box)
+            new_box = list(copy.deepcopy(box))
             new_box[0] = (box[0] + box[2]) / 2.
             new_box[1] = (box[1] + box[3]) / 2.
             new_box[2] = abs(box[0] - box[2])
