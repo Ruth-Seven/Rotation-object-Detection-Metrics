@@ -49,6 +49,7 @@ class BBFormat(Enum):
     """
     XYWH = 1
     XYX2Y2 = 2
+    RXYX2Y2 = 3
 
 
 # size => (width, height) of the image

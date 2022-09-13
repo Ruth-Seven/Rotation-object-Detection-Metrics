@@ -64,6 +64,8 @@ def ValidateFormats(argFormat, argName, errors):
         return BBFormat.XYWH
     elif argFormat == 'xyrb':
         return BBFormat.XYX2Y2
+    elif argFormat == 'rxyrb':
+        return BBFormat.RXYX2Y2
     elif argFormat is None:
         return BBFormat.XYWH  # default when nothing is passed
     else:

@@ -9,6 +9,7 @@ class BoundingBox:
                  y,
                  w,
                  h,
+                 radian=0,
                  typeCoordinates=CoordinatesType.Absolute,
                  imgSize=None,
                  bbType=BBType.GroundTruth,
@@ -86,12 +87,15 @@ class BoundingBox:
         else:
             self._width_img = imgSize[0]
             self._height_img = imgSize[1]
+        self._rotation = radian
 
     def getAbsoluteBoundingBox(self, format=BBFormat.XYWH):
         if format == BBFormat.XYWH:
             return (self._x, self._y, self._w, self._h)
         elif format == BBFormat.XYX2Y2:
             return (self._x, self._y, self._x2, self._y2)
+        elif format == BBFormat.RXYX2Y2:
+            return (self._x, self._y, self._x2, self._y2, self._rotation)
 
     def getRelativeBoundingBox(self, imgSize=None):
         if imgSize is None and self._width_img is None and self._height_img is None:

@@ -14,6 +14,7 @@ from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy as np
+import copy
 
 from BoundingBox import *
 from BoundingBoxes import *
@@ -63,14 +64,14 @@ class Evaluator:
                 groundTruths.append([
                     bb.getImageName(),
                     bb.getClassId(), 1,
-                    bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
+                    bb.getAbsoluteBoundingBox(BBFormat.RXYX2Y2)
                 ])
             else:
                 detections.append([
                     bb.getImageName(),
                     bb.getClassId(),
                     bb.getConfidence(),
-                    bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
+                    bb.getAbsoluteBoundingBox(BBFormat.RXYX2Y2)
                 ])
             # get class
             if bb.getClassId() not in classes:
@@ -367,10 +368,10 @@ class Evaluator:
     @staticmethod
     def _getAllIOUs(reference, detections):
         ret = []
-        bbReference = reference.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
+        bbReference = reference.getAbsoluteBoundingBox(BBFormat.RXYX2Y2)
         # img = np.zeros((200,200,3), np.uint8)
         for d in detections:
-            bb = d.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
+            bb = d.getAbsoluteBoundingBox(BBFormat.RXYX2Y2)
             iou = Evaluator.iou(bbReference, bb)
             # Show blank image with the bounding boxes
             # img = add_bb_into_image(img, d, color=(255,0,0), thickness=2, label=None)
@@ -383,15 +384,45 @@ class Evaluator:
 
     @staticmethod
     def iou(boxA, boxB):
-        # if boxes dont intersect
-        if Evaluator._boxesIntersect(boxA, boxB) is False:
-            return 0
-        interArea = Evaluator._getIntersectionArea(boxA, boxB)
-        union = Evaluator._getUnionAreas(boxA, boxB, interArea=interArea)
-        # intersection over union
-        iou = interArea / union
-        assert iou >= 0
-        return iou
+        # # if boxes dont intersect
+        # if Evaluator._boxesIntersect(boxA, boxB) is False:
+        #     return 0
+        # interArea = Evaluator._getIntersectionArea(boxA, boxB)
+        # union = Evaluator._getUnionAreas(boxA, boxB, interArea=interArea)
+        # # intersection over union
+        # iou = interArea / union
+        # assert iou >= 0
+        # return iou
+        return Evaluator.iou_rotate_calculate(boxA, boxB)
+
+    @staticmethod
+    def iou_rotate_calculate(boxes1, boxes2):
+
+        def xyxy2center(box):
+            new_box = copy.deepcopy(box)
+            new_box[0] = (box[0] + box[2]) / 2.
+            new_box[1] = (box[1] + box[3]) / 2.
+            new_box[2] = abs(box[0] - box[2])
+            new_box[3] = abs(box[1] - box[3])
+            return new_box
+
+        boxes1 = xyxy2center(boxes1)
+        boxes2 = xyxy2center(boxes2)
+        
+        area1 = boxes1[2] * boxes1[3]
+        area2 = boxes2[2] * boxes2[3]
+        r1 = ((boxes1[0], boxes1[1]), (boxes1[2], boxes1[3]), boxes1[4])
+        r2 = ((boxes2[0], boxes2[1]), (boxes2[2], boxes2[3]), boxes2[4])
+        int_pts = cv2.rotatedRectangleIntersection(r1, r2)[1]
+        if int_pts is not None:
+            order_pts = cv2.convexHull(int_pts, returnPoints=True)
+            int_area = cv2.contourArea(order_pts)
+            # 计算出iou
+            ious = int_area * 1.0 / (area1 + area2 - int_area)
+    #        print(int_area)
+        else:
+            ious=0
+        return ious
 
     # boxA = (Ax1,Ay1,Ax2,Ay2)
     # boxB = (Bx1,By1,Bx2,By2)
